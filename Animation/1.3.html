@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transparent Glow Border</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="glowCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('glowCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let hueOffset = 0;
+    let waveOffset = 0;
+
+    function drawIrregularPath() {
+      const width = canvas.width;
+      const height = canvas.height;
+      const amplitude = 5;
+      const frequency = 100;
+
+      ctx.beginPath();
+      for (let x = 0; x <= width; x += 10) {
+        const y = Math.sin((x + waveOffset) / frequency) * amplitude;
+        ctx.lineTo(x, y);
+      }
+      for (let y = 0; y <= height; y += 10) {
+        const x = Math.cos((y + waveOffset) / frequency) * amplitude;
+        ctx.lineTo(width + x, y);
+      }
+      for (let x = width; x >= 0; x -= 10) {
+        const y = Math.sin((x + waveOffset) / frequency) * amplitude;
+        ctx.lineTo(x, height + y);
+      }
+      for (let y = height; y >= 0; y -= 10) {
+        const x = Math.cos((y + waveOffset) / frequency) * amplitude;
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    function drawGlowBorder() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, `hsla(${(hueOffset + 0) % 360}, 100%, 50%, 0.5)`); 
+      gradient.addColorStop(0.5, `hsla(${(hueOffset + 120) % 360}, 100%, 60%, 0.4)`); 
+      gradient.addColorStop(1, `hsla(${(hueOffset + 240) % 360}, 100%, 70%, 0.3)`); 
+
+      ctx.lineWidth = 20;
+      ctx.strokeStyle = gradient;
+
+      drawIrregularPath();
+      ctx.stroke();
+
+      hueOffset += 0.5;
+      waveOffset += 1;
+
+      if (hueOffset >= 360) hueOffset = 0;
+
+      requestAnimationFrame(drawGlowBorder);
+    }
+
+    drawGlowBorder();
+  </script>
+</body>
+</html>
