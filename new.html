@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siri-Inspired Rounded Glow</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="glowCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('glowCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let hueOffset = 0;
+
+    function drawRoundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+
+    function drawGlowBorder() {
+      const width = canvas.width - 50;
+      const height = canvas.height - 50;
+
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, `hsl(${(hueOffset + 0) % 360}, 100%, 50%)`);
+      gradient.addColorStop(0.5, `hsl(${(hueOffset + 120) % 360}, 100%, 60%)`);
+      gradient.addColorStop(1, `hsl(${(hueOffset + 240) % 360}, 100%, 70%)`);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.lineWidth = 40;
+      ctx.strokeStyle = gradient;
+
+      drawRoundedRect(25, 25, width, height, 50);
+      ctx.stroke();
+
+      hueOffset += 1;  // Smooth color shift
+      if (hueOffset >= 360) hueOffset = 0;
+
+      requestAnimationFrame(drawGlowBorder);
+    }
+
+    drawGlowBorder();
+  </script>
+</body>
+</html>
